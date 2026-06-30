@@ -443,14 +443,14 @@
 
         <div class="card p-6 sm:p-8">
           <div id="formContainer">
-            <form id="contactForm" class="space-y-6">
+            <form id="contactForm" action="https://formspree.io/f/xpqgjgzl" method="POST" class="space-y-6">
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Your Email</label>
-                <input type="email" id="email" placeholder="your@email.com" class="input-field" required>
+                <input type="email" id="email" name="email" placeholder="your@email.com" class="input-field" required>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Your Message</label>
-                <textarea id="message" placeholder="Tell us about your project..." rows="5" class="input-field resize-none" required></textarea>
+                <textarea id="message" name="message" placeholder="Tell us about your project..." rows="5" class="input-field resize-none" required></textarea>
               </div>
               <button type="submit" id="submitBtn" class="btn-primary w-full justify-center">
                 Send Message
@@ -531,23 +531,37 @@
         Sending...
       `;
 
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Submit form to Formspree
+      const formData = new FormData(form);
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
 
-      // Show success message
-      formContainer.classList.add('hidden');
-      successMessage.classList.remove('hidden');
+        if (response.ok) {
+          // Show success message
+          formContainer.classList.add('hidden');
+          successMessage.classList.remove('hidden');
+          form.reset();
 
-      // Reset form
-      form.reset();
+          // Hide success message after 5 seconds
+          setTimeout(() => {
+            successMessage.classList.add('hidden');
+            formContainer.classList.remove('hidden');
+          }, 5000);
+        } else {
+          alert('Something went wrong. Please try again.');
+        }
+      } catch (error) {
+        alert('Something went wrong. Please try again.');
+      }
+
       submitBtn.innerHTML = originalContent;
       submitBtn.disabled = false;
-
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        successMessage.classList.add('hidden');
-        formContainer.classList.remove('hidden');
-      }, 5000);
     });
   </script>
 </body>
